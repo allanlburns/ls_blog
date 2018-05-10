@@ -6,7 +6,7 @@ class ApplicationController < ActionController::Base
   end
   
   def show_post
-    post = connection.execute("SELECT * FROM posts WHERE posts.id = ? LIMIT 1", params['id']).first
+    post = Post.find(params['id'])
 
     render 'application/show_post', locals: { post: post }
   end
@@ -16,19 +16,37 @@ class ApplicationController < ActionController::Base
   end
   
   def create_post
-    insert_query = <<-SQL
-      INSERT INTO posts (title, body, author, created_at)
-      VALUES (?, ?, ?, ?)
-    SQL
-
-    connection.execute insert_query,
-      params['title'],
-      params['body'],
-      params['author'],
-      Date.current.to_s
-
+    post = Post.new('title' => params['title'],
+                    'body' => params['body'],
+                    'author' => params['author'])
+    post.save
     redirect_to '/list_posts'
     #binding.pry
+  end
+  
+  def edit_post
+    post = Post.find(params['id'])
+
+    render 'application/edit_post', locals: { post: post }
+  end
+  
+  def update_post
+    update_query = <<-SQL
+      UPDATE posts
+      SET title      = ?,
+          body       = ?,
+          author     = ?
+      WHERE posts.id = ?
+    SQL
+    connection.execute update_query, params['title'], params['body'], params['author'], params['id']
+
+    redirect_to '/list_posts'
+  end
+  
+  def delete_post
+    connection.execute("DELETE FROM posts WHERE posts.id = ?", params['id'])
+
+    redirect_to '/list_posts'
   end
   
   private
