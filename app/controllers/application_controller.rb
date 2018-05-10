@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::Base
   def list_posts
-    posts = connection.execute("SELECT * FROM posts")
+    posts = Post.all
 
     render 'application/list_posts', locals: { posts: posts }
   end
@@ -31,20 +31,16 @@ class ApplicationController < ActionController::Base
   end
   
   def update_post
-    update_query = <<-SQL
-      UPDATE posts
-      SET title      = ?,
-          body       = ?,
-          author     = ?
-      WHERE posts.id = ?
-    SQL
-    connection.execute update_query, params['title'], params['body'], params['author'], params['id']
+  post = Post.find(params['id'])
+  post.set_attributes('title' => params['title'], 'body' => params['body'], 'author' => params['author'])
+  post.save
 
-    redirect_to '/list_posts'
-  end
+  redirect_to '/list_posts'
+end
   
   def delete_post
-    connection.execute("DELETE FROM posts WHERE posts.id = ?", params['id'])
+    post = Post.find(params['id'])
+    post.destroy
 
     redirect_to '/list_posts'
   end
