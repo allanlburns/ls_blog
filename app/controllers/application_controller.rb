@@ -12,16 +12,19 @@ class ApplicationController < ActionController::Base
   end
   
   def new_post
-    render 'application/new_post'
+    post = Post.new
+
+    render 'application/new_post', locals: { post: post }
   end
   
   def create_post
-    post = Post.new('title' => params['title'],
-                    'body' => params['body'],
-                    'author' => params['author'])
-    post.save
-    redirect_to '/list_posts'
-    #binding.pry
+    post = Post.new('title' => params['title'], 'body' => params['body'],
+      'author' => params['author'])
+    if post.save
+      redirect_to '/list_posts'
+    else
+      render 'application/new_post', locals: { post: post }
+    end
   end
   
   def edit_post
@@ -31,12 +34,15 @@ class ApplicationController < ActionController::Base
   end
   
   def update_post
-  post = Post.find(params['id'])
-  post.set_attributes('title' => params['title'], 'body' => params['body'], 'author' => params['author'])
-  post.save
-
-  redirect_to '/list_posts'
-end
+    post = Post.find(params['id'])
+    post.set_attributes('title' => params['title'], 'body' => params['body'],
+      'author' => params['author'])
+    if post.save
+      redirect_to '/list_posts'
+    else
+      render 'application/edit_post', locals: { post: post }
+    end
+  end
   
   def delete_post
     post = Post.find(params['id'])
