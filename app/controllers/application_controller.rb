@@ -68,6 +68,12 @@ class ApplicationController < ActionController::Base
     end
   end
   
+  def delete_comment
+    post = Post.find(params['post_id'])
+    post.delete_comment(params['comment_id'])
+    redirect_to "/show_post/#{params['post_id']}"
+  end
+  
   private
 
   def connection

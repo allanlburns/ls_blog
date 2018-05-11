@@ -44,6 +44,15 @@ class Comment
       @post_id,
       Date.current.to_s
   end
+  
+  def self.find(id)
+      comment_hash = connection.execute("SELECT * FROM comments WHERE comments.id = ? LIMIT 1", id).first
+      Comment.new(comment_hash)
+    end
+
+    def destroy
+      connection.execute "DELETE FROM comments WHERE id = ?", id
+    end
 
   def self.connection
     db_connection = SQLite3::Database.new 'db/development.sqlite3'

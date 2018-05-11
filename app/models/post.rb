@@ -107,4 +107,8 @@ class Post
     comment = build_comment(attributes)
     comment.save
   end
+
+  def delete_comment(comment_id)
+    Comment.find(comment_id).destroy
+  end
 end
