@@ -6,10 +6,11 @@ class ApplicationController < ActionController::Base
   end
   
   def show_post
-    post     = Post.find(params['id'])
-    comments = connection.execute('SELECT * FROM comments WHERE comments.post_id = ?', params['id'])
-
-    render 'application/show_post', locals: { post: post, comments: comments }
+    post    = Post.find(params['id'])
+    comment = Comment.new
+    comments = post.comments
+    render "application/show_post",
+      locals: { post: post, comment: comment, comments: comments }
   end
   
   def new_post
@@ -50,6 +51,21 @@ class ApplicationController < ActionController::Base
     post.destroy
 
     redirect_to '/list_posts'
+  end
+  
+  def create_comment
+    post     = Post.find(params['post_id'])
+    comments = post.comments
+    # post.build_comment to set the post_id
+    comment  = post.build_comment('body' => params['body'], 'author' => params['author'])
+    if comment.save
+      # redirect for success
+      redirect_to "/show_post/#{params['post_id']}"
+    else
+      # render form again with errors for failure
+      render 'application/show_post',
+        locals: { post: post, comment: comment, comments: comments }
+    end
   end
   
   private
